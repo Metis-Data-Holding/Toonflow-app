@@ -22,9 +22,22 @@ interface AIConfig {
   manufacturer?: string;
 }
 
+const normalizeManufacturer = (manufacturer?: string): string => {
+  const input = (manufacturer ?? "").trim();
+  const lower = input.toLowerCase();
+  const aliasMap: Record<string, string> = {
+    openrouter: "openrouter",
+    openai: "openai",
+    "open-ai": "openai",
+    deepseek: "deepSeek",
+  };
+  return aliasMap[lower] ?? input;
+};
+
 const buildOptions = async (input: AIInput<any>, config: AIConfig = {}) => {
   if (!config || !config?.model || !config?.apiKey || !config?.manufacturer) throw new Error("请检查模型配置是否正确");
-  const { model, apiKey, baseURL, manufacturer } = { ...config };
+  const { model, apiKey, baseURL } = { ...config };
+  const manufacturer = normalizeManufacturer(config.manufacturer);
   let owned;
   const modelList = await getModelList();
   if (manufacturer == "other") {
@@ -61,7 +74,7 @@ const buildOptions = async (input: AIInput<any>, config: AIConfig = {}) => {
   };
 
   const output = input.output ? (outputBuilders[owned.responseFormat]?.(input.output) ?? null) : null;
-  const chatModelManufacturer = ["volcengine", "other", "openai", "modelScope", "grsai", "formal"];
+  const chatModelManufacturer = ["volcengine", "other", "openai", "modelScope", "grsai", "formal", "openrouter"];
   const modelFn = chatModelManufacturer.includes(owned.manufacturer) ? (modelInstance as OpenAIProvider).chat(model!) : modelInstance(model!);
 
   return {

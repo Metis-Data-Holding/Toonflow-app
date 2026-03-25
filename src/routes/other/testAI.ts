@@ -5,6 +5,11 @@ import u from "@/utils";
 import { z } from "zod";
 import { tool } from "ai";
 const router = express.Router();
+const normalizeManufacturer = (manufacturer: string): string => {
+  const input = manufacturer.trim();
+  if (input.toLowerCase() === "openrouter") return "openrouter";
+  return input;
+};
 
 // 检查语言模型
 export default router.post(
@@ -17,6 +22,7 @@ export default router.post(
   }),
   async (req, res) => {
     const { modelName, apiKey, baseURL, manufacturer } = req.body;
+    const normalizedManufacturer = normalizeManufacturer(manufacturer);
 
     const getWeatherTool = tool({
       description: "Get the weather in a location",
@@ -43,7 +49,7 @@ export default router.post(
           model: modelName,
           apiKey,
           baseURL,
-          manufacturer,
+          manufacturer: normalizedManufacturer,
         },
       );
       res.status(200).send(success(reply));

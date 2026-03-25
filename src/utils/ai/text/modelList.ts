@@ -4,7 +4,6 @@ import { createZhipu } from "zhipu-ai-provider";
 import { createQwen } from "qwen-ai-provider-v5";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createXai } from "@ai-sdk/xai";
 import db from "@/utils/db";
 
@@ -32,6 +31,7 @@ const instanceMap = {
   gemini: createGoogleGenerativeAI,
   anthropic: createAnthropic,
   modelScope: (options: OpenAIProviderSettings) => createOpenAI({ ...options, headers: { ...options?.headers, "X-ModelScope-Async-Mode": "true" } }),
+  openrouter: createOpenAI,
   xai: createXai,
   other: createOpenAI,
   grsai: createOpenAI,
@@ -460,6 +460,15 @@ const modelList: Owned[] = [
     image: true,
     think: false,
     instance: createXai,
+    tool: true,
+  },
+  {
+    manufacturer: "openrouter",
+    model: "openrouter/auto",
+    responseFormat: "object",
+    image: true,
+    think: false,
+    instance: createOpenAI,
     tool: true,
   },
   //其他

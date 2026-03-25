@@ -10,17 +10,17 @@ interface BaseConfig {
 
 interface TextResData extends BaseConfig {
   baseURL: string;
-  manufacturer: "deepseek" | "openAi" | "doubao" | "other";
+  manufacturer: string;
 }
 
 // 图像模型配置接口
 interface ImageResData extends BaseConfig {
-  manufacturer: "gemini" | "volcengine" | "kling" | "vidu" | "runninghub" | "apimart" | "other";
+  manufacturer: string;
 }
 
 interface VideoResData extends BaseConfig {
   baseURL: string;
-  manufacturer: "openAi" | "volcengine" | "runninghub" | "apimart" | "confyUI";
+  manufacturer: string;
 }
 
 type ResDataMap = {

@@ -104,6 +104,19 @@ export default async (knex: Knex): Promise<void> => {
   if (needInsert.length) {
     await knex("t_aiModelMap").insert(needInsert);
   }
+
+  const openRouterTextModel = await knex("t_textModel").where("manufacturer", "openrouter").first();
+  if (!openRouterTextModel) {
+    await knex("t_textModel").insert({
+      manufacturer: "openrouter",
+      model: "openrouter/auto",
+      responseFormat: "object",
+      image: 1,
+      think: 0,
+      tool: 1,
+    });
+  }
+
   const viduVideototal = await knex("t_videoModel").where("manufacturer", "vidu").count({ count: "*" });
 
   const viduCount = Number(viduVideototal[0].count);
