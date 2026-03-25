@@ -130,3 +130,54 @@
 - 联调结论：联调通过（配置 OpenRouter -> 拉取模型 -> 保存 -> testAI 全链路正常）
 - 遗留问题：暂无阻塞项；Gemini 连通问题不在本次 Change-001 范围内
 ---
+
+## Change-002
+- 标题：`前端请求地址环境自适配（修复线上登录 Network Error）`
+- 日期：`2026-03-25`
+- 发起仓库：`Toonflow-web`
+- 需求背景：线上通过 IP 访问登录页时，前端请求命中 `http://localhost:60000/other/login` 导致 `Network Error`；当前依赖手工替换 dist 中 localhost 的方式不利于持续迭代与本地调试。
+- 状态：`DRAFT`
+- 是否影响前后端联动：`是`
+- 关联 issue / PR / commit：`待补充`
+- 备注：本条目仅先登记前端改造计划；后端部分由 Toonflow-app 仓库补充。
+
+### 后端改动
+- 改动内容：
+- 受影响接口：
+	- 1. `METHOD /api/...`
+		- 请求变化：
+		- 响应变化：
+		- 错误处理变化：
+		- 是否兼容旧前端：`是` / `否`
+		- 前端必须同步的点：
+		- 后端验证方式：
+		- 后端涉及文件：
+
+### 前端改动
+- 受影响页面/组件：登录页、设置页请求配置面板、全局请求层（axios / ws）
+- 受影响 API / 类型：
+  - 登录：`POST /api/other/login`
+  - 全局请求：运行时 `baseUrl` 解析与注入
+  - WebSocket：运行时 `wsBaseUrl` 解析与注入（线上 `/ws`）
+- 修改方案：
+  - 统一优先级：`URL Query(baseUrl/wsBaseUrl) > 用户设置(Store) > 环境默认值`
+  - 环境默认值：本地开发使用 `http://localhost:60000` / `ws://localhost:60000`；线上 Web 使用 `/api` / `/ws`
+  - 增加历史配置迁移：线上若检测到 `localhost/127.0.0.1` 旧值则自动纠正
+  - 设置页“重置默认”改为重置到当前环境默认值
+- 是否有阻塞：`否`
+- 实际修改内容：`待开发`
+- 前端涉及文件：
+  - `Toonflow-web/src/stores/setting.ts`
+  - `Toonflow-web/src/utils/axios.ts`
+  - `Toonflow-web/src/utils/wsClient.ts`
+  - `Toonflow-web/src/App.vue`
+  - `Toonflow-web/src/views/setting/components/requestConfig.vue`
+- 验证方式：
+  - 线上登录请求应命中 `POST /api/other/login`，不再出现 `localhost:60000`
+  - 本地 `yarn dev` 调试流程保持可用
+  - 前端类型检查通过（`yarn type-check`）
+
+### 联调结果
+- 联调结论：`待联调`
+- 遗留问题：`待确认是否存在历史缓存导致的个别用户首登失败场景`
+---
