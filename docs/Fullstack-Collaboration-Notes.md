@@ -49,4 +49,84 @@
 ---
 
 ## Change-001
+- 标题：`OpenRouter 文本模型接入与动态模型拉取`
+- 日期：`2026-03-25`
+- 发起仓库：`Toonflow-app`
+- 需求背景：当前大模型配置中缺少 OpenRouter 支持，导致 `testAI` 连通测试无法通过；同时前端缺少可直接拉取 OpenRouter 模型列表的后端接口。
+- 状态：`DONE`
+- 是否影响前后端联动：`是`
+- 关联 issue / PR / commit：`commit 3215454 (feat: 增加 OpenRouter 文本模型接入与模型拉取接口)`
+- 备注：前后端已完成各自改动，待联合联调验证。
+
+### 后端改动
+- 改动内容：
+  - 新增 OpenRouter 模型拉取接口，后端调用 OpenRouter 官方 `/models` 并返回前端可直接使用的 `{label,value}` 列表。
+  - 文本模型调用链增加 `openrouter` provider 支持。
+  - `addModel/updateModel/testAI` 增加 `manufacturer` 归一化：`openRouter`/`OpenRouter`/`openrouter` 统一存取为 `openrouter`。
+  - 初始化与迁移逻辑补齐 `t_textModel` 的 `openrouter` 基础模型记录（`openrouter/auto`）。
+- 受影响接口：
+	- 1. `POST /api/setting/getOpenRouterModels`（后端实际路由：`/setting/getOpenRouterModels`）
+		- 请求变化：新增接口；请求体 `{ apiKey: string, baseURL?: string }`
+		- 响应变化：成功返回 `{ openrouter: Array<{ label: string; value: string }> }`
+		- 错误处理变化：鉴权失败/无模型返回 400；其他异常 500
+		- 是否兼容旧前端：`是`（新增接口，不影响旧流程）
+		- 前端必须同步的点：OpenRouter 模型下拉应改为调用该接口动态拉取
+		- 后端验证方式：有效请求返回模型列表；无效 key 会返回错误信息
+		- 后端涉及文件：
+      - `src/routes/setting/getOpenRouterModels.ts`
+      - `src/router.ts`
+	- 2. `POST /api/setting/addModel`（后端实际路由：`/setting/addModel`）
+		- 请求变化：`manufacturer` 入参支持别名并归一化为 `openrouter`
+		- 响应变化：无
+		- 错误处理变化：无
+		- 是否兼容旧前端：`是`
+		- 前端必须同步的点：建议固定传 `openrouter`
+		- 后端验证方式：新增配置后检查 `t_config.manufacturer` 值
+		- 后端涉及文件：
+      - `src/routes/setting/addModel.ts`
+	- 3. `POST /api/setting/updateModel`（后端实际路由：`/setting/updateModel`）
+		- 请求变化：`manufacturer` 入参支持别名并归一化为 `openrouter`
+		- 响应变化：无
+		- 错误处理变化：无
+		- 是否兼容旧前端：`是`
+		- 前端必须同步的点：建议固定传 `openrouter`
+		- 后端验证方式：更新配置后检查 `t_config.manufacturer` 值
+		- 后端涉及文件：
+      - `src/routes/setting/updateModel.ts`
+	- 4. `POST /api/other/testAI`（后端实际路由：`/other/testAI`）
+		- 请求变化：`manufacturer` 入参支持别名并归一化为 `openrouter`
+		- 响应变化：无
+		- 错误处理变化：维持现有错误包装逻辑（业务失败仍返回错误消息）
+		- 是否兼容旧前端：`是`
+		- 前端必须同步的点：测试连通时 `manufacturer` 统一传 `openrouter`
+		- 后端验证方式：已验证可正确命中 OpenRouter `/chat/completions`
+		- 后端涉及文件：
+      - `src/routes/other/testAI.ts`
+
+### 前端改动
+- 受影响页面/组件：模型配置页（文本模型配置区域）
+- 受影响 API / 类型：
+  - 新增调用：`POST /api/setting/getOpenRouterModels`
+  - 配置提交：`POST /api/setting/addModel`、`POST /api/setting/updateModel`
+  - 连通测试：`POST /api/other/testAI`
+  - 返回类型：`{ openrouter: Array<{ label: string; value: string }> }`
+- 修改方案：
+  - 当厂商选择 OpenRouter 时，Base URL 自动回填为 `https://openrouter.ai/api/v1`，并只读展示（不可编辑）。
+  - API Key 输入框失焦自动拉取模型列表，并提供“刷新模型”按钮。
+  - 模型输入改为“可搜索下拉 + 可手输”。
+  - 保存与测试时固定发送 `manufacturer: "openrouter"`。
+- 是否有阻塞：`否`
+- 实际修改内容：
+  - 增加 OpenRouter 厂商映射、默认 BaseURL 与 API Key 跳转链接。
+  - 新增 `getOpenRouterModels` 调用并接入自动/手动拉取模型逻辑。
+  - 统一 add/update/testAI 请求中的 OpenRouter 参数（`manufacturer`/`baseUrl`）。
+- 前端涉及文件：
+  - `Toonflow-web/src/views/setting/model/addModelDialog.vue`
+  - `Toonflow-web/src/views/setting/model/modeListDialog.vue`
+  - `Toonflow-web/src/views/setting/model/modelData.vue`
+- 验证方式：配置 OpenRouter -> 拉取模型 -> 保存 -> testAI 连通测试 + `npm run type-check`
+
+### 联调结果
+- 联调结论：联调通过（配置 OpenRouter -> 拉取模型 -> 保存 -> testAI 全链路正常）
+- 遗留问题：暂无阻塞项；Gemini 连通问题不在本次 Change-001 范围内
 ---
