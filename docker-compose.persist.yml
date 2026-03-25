@@ -4,18 +4,23 @@
 services:
   toonflow:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile.local
-    image: toonflow:local
-    container_name: toonflow-local
+    container_name: toonflow
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "80:80"
       - "60000:60000"
     environment:
-      - NODE_ENV=prod
+      NODE_ENV: prod
+      PORT: 60000
+      OSSURL: http://101.47.20.72:60000/
     volumes:
-      - ../logs:/var/log
+      - /opt/toonflow/logs:/var/log
+      - /opt/toonflow/uploads:/app/uploads
+      - /opt/toonflow/data:/app/data
+      - /opt/toonflow/db.sqlite:/app/db.sqlite
+      - /opt/toonflow/env:/app/env
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
       interval: 30s
