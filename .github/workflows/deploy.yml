@@ -24,17 +24,25 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.ECS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.ECS_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.ECS_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.ECS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Validate secrets
+        run: |
+          test -n "${{ secrets.ECS_HOST }}" || (echo "ECS_HOST is empty" && exit 1)
+          test -n "${{ secrets.ECS_USER }}" || (echo "ECS_USER is empty" && exit 1)
+          test -n "${{ secrets.ECS_SSH_KEY }}" || (echo "ECS_SSH_KEY is empty" && exit 1)
+          echo "ECS_HOST is set"
+          echo "ECS_USER is set"
 
       - name: Test SSH connection
         run: |
-          ssh -o StrictHostKeyChecking=yes ${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }} "echo connected"
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes "${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }}" "echo connected"
 
       - name: Deploy on ECS
         run: |
-          ssh ${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }} << EOF
+          ssh -i ~/.ssh/id_ed25519 "${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }}" << EOF
             set -e
             cd /opt/metis/Toonflow-app
             git fetch --all
