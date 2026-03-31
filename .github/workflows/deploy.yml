@@ -22,13 +22,17 @@ jobs:
           ref: ${{ github.event.inputs.deploy_ref }}
 
       - name: Setup SSH key
+        shell: bash
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.ECS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          cat > ~/.ssh/id_ed25519 <<'EOF'
+          ${{ secrets.ECS_SSH_KEY }}
+          EOF
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "${{ secrets.ECS_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Validate secrets
+        shell: bash
         run: |
           test -n "${{ secrets.ECS_HOST }}" || (echo "ECS_HOST is empty" && exit 1)
           test -n "${{ secrets.ECS_USER }}" || (echo "ECS_USER is empty" && exit 1)
@@ -37,10 +41,12 @@ jobs:
           echo "ECS_USER is set"
 
       - name: Test SSH connection
+        shell: bash
         run: |
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes "${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }}" "echo connected"
 
       - name: Deploy on ECS
+        shell: bash
         run: |
           ssh -i ~/.ssh/id_ed25519 "${{ secrets.ECS_USER }}@${{ secrets.ECS_HOST }}" << EOF
             set -e
