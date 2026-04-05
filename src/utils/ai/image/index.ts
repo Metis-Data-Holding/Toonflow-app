@@ -12,8 +12,15 @@ import other from "./owned/other";
 import gemini from "./owned/gemini";
 import modelScope from "./owned/modelScope";
 import grsai from "./owned/grsai";
-import { tr } from "zod/locales";
 import formal from "./owned/formal";
+import openrouter from "./owned/openrouter";
+
+const normalizeManufacturer = (manufacturer?: string): string => {
+  const input = (manufacturer ?? "").trim();
+  if (input.toLowerCase() === "openrouter") return "openrouter";
+  return input;
+};
+
 const urlToBase64 = async (url: string): Promise<string> => {
   const res = await axios.get(url, { responseType: "arraybuffer" });
   const base64 = Buffer.from(res.data).toString("base64");
@@ -32,15 +39,17 @@ const modelInstance = {
   other,
   grsai,
   formal,
+  openrouter,
 } as const;
 
 export default async (input: ImageConfig, config: AIConfig) => {
-  const { model, apiKey, baseURL, manufacturer } = { ...config };
+  const manufacturer = normalizeManufacturer((config as AIConfig & { manufacturer?: string }).manufacturer);
+  const { model, apiKey, baseURL } = { ...config };
 
-  if (!config || !config?.model || !config?.apiKey || !config?.manufacturer) throw new Error("请检查模型配置是否正确");
+  if (!config || !config?.model || !config?.apiKey || !manufacturer) throw new Error("请检查模型配置是否正确");
 
   const manufacturerFn = modelInstance[manufacturer as keyof typeof modelInstance];
-  if (!manufacturerFn) if (!manufacturerFn) throw new Error("不支持的图片厂商");
+  if (!manufacturerFn) throw new Error("不支持的图片厂商");
 
   // if (manufacturer !== "other") {
   //   const owned = modelList.find((m) => m.model === model);

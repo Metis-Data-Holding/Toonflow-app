@@ -4,8 +4,13 @@ import u from "@/utils";
 import { validateFields } from "@/middleware/middleware";
 import { z } from "zod";
 const router = express.Router();
+const normalizeManufacturer = (manufacturer: string): string => {
+  const input = manufacturer.trim();
+  if (input.toLowerCase() === "openrouter") return "openrouter";
+  return input;
+};
 
-// 检查语言模型
+// 检查图片模型
 export default router.post(
   "/",
   validateFields({
@@ -16,6 +21,7 @@ export default router.post(
   }),
   async (req, res) => {
     const { modelName, apiKey, baseURL, manufacturer } = req.body;
+    const normalizedManufacturer = normalizeManufacturer(manufacturer);
     try {
       const image = await u.ai.image(
         {
@@ -33,7 +39,7 @@ export default router.post(
           model: modelName,
           apiKey,
           baseURL,
-          manufacturer,
+          manufacturer: normalizedManufacturer,
         },
       );
       res.status(200).send(success(image));

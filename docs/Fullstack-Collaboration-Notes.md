@@ -181,3 +181,91 @@
 - 联调结论：`待联调`
 - 遗留问题：`待确认是否存在历史缓存导致的个别用户首登失败场景`
 ---
+
+## Change-003
+- 标题：`OpenRouter 图像模型接入与文本模型列表过滤`
+- 日期：`2026-04-05`
+- 发起仓库：`Toonflow-app`
+- 需求背景：当前 OpenRouter 仅支持文本模型；图像模型配置页缺少 OpenRouter 厂商和图像模型拉取能力。同时，文本模型页当前拉取的是 OpenRouter 全量模型，需要收敛为只拉取文本输出能力模型。
+- 状态：`BACKEND_DONE`
+- 是否影响前后端联动：`是`
+- 关联 issue / PR / commit：`待补充`
+- 备注：本次仅完成 app 仓库后端改动；Toonflow-web 需要按本条目完成前端对接。
+
+### 后端改动
+- 改动内容：
+  - 新增 OpenRouter 图像模型 provider，图像生成沿用 OpenRouter 官方统一 Base URL：`https://openrouter.ai/api/v1`，并通过 `/chat/completions` + `modalities` + `image_config` 发起请求。
+  - 新增 OpenRouter 图像模型拉取接口，后端只返回具备图像输出能力的模型。
+  - 现有 OpenRouter 文本模型拉取接口改为只请求文本输出能力模型，不再拉取 OpenRouter 全量模型。
+  - `testImage` 增加 `manufacturer` 归一化，支持 `OpenRouter/openRouter/openrouter`。
+  - 初始化与迁移逻辑补齐 `t_imageModel` 的基础记录：`openrouter/auto`。
+- 受影响接口：
+	- 1. `POST /api/setting/getOpenRouterModels`（后端实际路由：`/setting/getOpenRouterModels`）
+		- 请求变化：无；请求体仍为 `{ apiKey: string, baseURL?: string }`
+		- 响应变化：无；成功仍返回 `{ openrouter: Array<{ label: string; value: string }> }`
+		- 错误处理变化：鉴权失败返回 400；其他异常返回 500
+		- 是否兼容旧前端：`是`
+		- 前端必须同步的点：文本模型页调用该接口后，列表语义变为“仅文本输出能力模型”，不再是 OpenRouter 全量模型
+		- 后端验证方式：使用有效 API Key 调用后，只会返回 OpenRouter 文本输出能力模型
+		- 后端涉及文件：
+      - `src/routes/setting/getOpenRouterModels.ts`
+      - `src/lib/openrouter.ts`
+	- 2. `POST /api/setting/getOpenRouterImageModels`（后端实际路由：`/setting/getOpenRouterImageModels`）
+		- 请求变化：新增接口；请求体 `{ apiKey: string, baseURL?: string }`
+		- 响应变化：成功返回 `{ openrouter: Array<{ label: string; value: string }> }`
+		- 错误处理变化：鉴权失败返回 400；无可用图像模型返回 400；其他异常返回 500
+		- 是否兼容旧前端：`是`（新增接口）
+		- 前端必须同步的点：图像模型配置弹层在用户输入 API Key 后，需要调用该接口拉取 OpenRouter 图像模型
+		- 后端验证方式：使用有效 API Key 调用后，只返回具备图像输出能力的 OpenRouter 模型
+		- 后端涉及文件：
+      - `src/routes/setting/getOpenRouterImageModels.ts`
+      - `src/lib/openrouter.ts`
+      - `src/router.ts`
+	- 3. `POST /api/other/testImage`（后端实际路由：`/other/testImage`）
+		- 请求变化：`manufacturer` 现在支持别名并会归一化为 `openrouter`
+		- 响应变化：无；成功时继续返回图片结果（base64 或可转换图片 URL）
+		- 错误处理变化：OpenRouter 若未返回 `images` 字段，会返回明确错误信息
+		- 是否兼容旧前端：`是`
+		- 前端必须同步的点：OpenRouter 图像模型测试连通时，固定发送 `manufacturer: "openrouter"`
+		- 后端验证方式：对 OpenRouter 图像模型调用该接口，能完成图像连通测试
+		- 后端涉及文件：
+      - `src/routes/other/testImage.ts`
+      - `src/utils/ai/image/index.ts`
+      - `src/utils/ai/image/owned/openrouter.ts`
+
+### 前端改动
+- 受影响页面/组件：
+  - 模型配置页 “新增模型” 弹层的图像页
+  - 图像模型新增/编辑弹层
+  - 文本模型 OpenRouter 配置弹层
+- 受影响 API / 类型：
+  - 文本模型拉取：`POST /api/setting/getOpenRouterModels`
+  - 图像模型拉取：`POST /api/setting/getOpenRouterImageModels`
+  - 图像连通测试：`POST /api/other/testImage`
+  - 图像模型列表返回类型：`{ openrouter: Array<{ label: string; value: string }> }`
+- 修改方案：
+  - 图像页厂商筛选新增 `OpenRouter`，交互和视觉表现与文本页现有 OpenRouter 一致。
+  - 图像页点击 `OpenRouter` 后，模型列表区应与文本页一致：
+    - 展示一个 `openrouter/auto` 卡片
+    - 展示一个“自定义模型”卡片
+  - 图像模型“添加/编辑”弹层中：
+    - Base URL 自动填充并默认显示为 `https://openrouter.ai/api/v1`
+    - 用户输入 API Key 后，模型名称下拉调用 `POST /api/setting/getOpenRouterImageModels`
+    - 保存、编辑、测试连通时固定发送 `manufacturer: "openrouter"`
+  - 文本模型页同步调整：
+    - 继续调用 `POST /api/setting/getOpenRouterModels`
+    - 但页面文案/逻辑要按“文本输出能力模型”理解，不要再假设是 OpenRouter 全量模型
+- 是否有阻塞：`否`
+- 实际修改内容：`待 Toonflow-web 仓库实现`
+- 前端涉及文件：`待 Toonflow-web 仓库补充`
+- 验证方式：
+  - 图像页新增模型弹层中能看到 `OpenRouter`
+  - 选择 `OpenRouter` 后，模型卡片区和文本页一致
+  - 输入 API Key 后，图像模型名称下拉能拉到 OpenRouter 图像模型
+  - 保存 OpenRouter 图像模型成功，并能通过 `testImage`
+  - 文本页 OpenRouter 模型下拉不再显示 OpenRouter 全量模型
+
+### 联调结果
+- 联调结论：`待 Toonflow-web 完成后联调`
+- 遗留问题：前端尚未接入图像页 OpenRouter 厂商筛选与图像模型拉取逻辑
+---

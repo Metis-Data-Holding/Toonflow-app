@@ -647,6 +647,7 @@ export default async (knex: Knex, forceInit: boolean = false): Promise<void> => 
           { manufacturer: "vidu", model: "viduq1", grid: 0, type: "i2i" },
           { manufacturer: "vidu", model: "viduq2", grid: 0, type: "ti2i" },
           { manufacturer: "runninghub", model: "nanobanana", grid: 1, type: "ti2i" },
+          { manufacturer: "openrouter", model: "openrouter/auto", grid: 1, type: "ti2i" },
           { manufacturer: "modelScope", model: "Qwen/Qwen-Image", grid: 1, type: "ti2i" },
           { manufacturer: "grsai", model: "nano-banana-fast", grid: 1, type: "ti2i" },
           { manufacturer: "grsai", model: "nano-banana-pro", grid: 1, type: "ti2i" },

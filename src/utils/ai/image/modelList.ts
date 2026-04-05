@@ -59,6 +59,12 @@ const modelList: Owned[] = [
     grid: true,
     type: "ti2i",
   },
+  {
+    manufacturer: "openrouter",
+    model: "openrouter/auto",
+    grid: true,
+    type: "ti2i",
+  },
 ];
 
 export default modelList;
