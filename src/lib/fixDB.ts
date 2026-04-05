@@ -117,6 +117,16 @@ export default async (knex: Knex): Promise<void> => {
     });
   }
 
+  const openRouterImageModel = await knex("t_imageModel").where("manufacturer", "openrouter").first();
+  if (!openRouterImageModel) {
+    await knex("t_imageModel").insert({
+      manufacturer: "openrouter",
+      model: "openrouter/auto",
+      grid: 1,
+      type: "ti2i",
+    });
+  }
+
   const viduVideototal = await knex("t_videoModel").where("manufacturer", "vidu").count({ count: "*" });
 
   const viduCount = Number(viduVideototal[0].count);

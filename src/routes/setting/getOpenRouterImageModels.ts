@@ -2,8 +2,8 @@ import express from "express";
 import { z } from "zod";
 import { validateFields } from "@/middleware/middleware";
 import { success, error } from "@/lib/responseFormat";
-import u from "@/utils";
 import { fetchOpenRouterModels, toOpenRouterModelOptions } from "@/lib/openrouter";
+import u from "@/utils";
 
 const router = express.Router();
 
@@ -20,12 +20,12 @@ export default router.post(
       const models = await fetchOpenRouterModels({
         apiKey,
         baseURL,
-        outputModalities: ["text"],
+        outputModalities: ["image"],
       });
       const list = toOpenRouterModelOptions(models);
 
       if (!list.length) {
-        return res.status(400).send(error("未获取到可用模型，请检查 API Key 或 baseURL"));
+        return res.status(400).send(error("未获取到可用图像模型，请检查 API Key、Base URL 或模型权限"));
       }
 
       return res.status(200).send(success({ openrouter: list }));
@@ -35,7 +35,7 @@ export default router.post(
         return res.status(400).send(error("OpenRouter 鉴权失败，请检查 API Key"));
       }
 
-      const msg = u.error(err).message || "获取 OpenRouter 文本模型列表失败";
+      const msg = u.error(err).message || "获取 OpenRouter 图像模型列表失败";
       return res.status(500).send(error(msg));
     }
   },
