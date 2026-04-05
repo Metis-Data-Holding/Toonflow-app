@@ -20,7 +20,7 @@ export default router.post(
 
     for (const item of tempAssets) {
       if (item.filePath) {
-        item.filePath = await u.oss.getFileUrl(item.filePath);
+        item.filePath = await u.oss.getFileUrl(item.filePath, req);
       } else {
         item.filePath = "";
       }
@@ -29,7 +29,7 @@ export default router.post(
     const data = {
       id: assets!.id,
       state: assets!.state,
-      filePath: assets!.filePath ? await u.oss.getFileUrl(assets!.filePath) : "",
+      filePath: assets!.filePath ? await u.oss.getFileUrl(assets!.filePath, req) : "",
       scriptId: assets!.scriptId,
       tempAssets,
     };

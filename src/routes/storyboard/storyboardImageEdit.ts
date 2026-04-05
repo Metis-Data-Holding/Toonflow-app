@@ -34,7 +34,7 @@ export default router.post(
       });
       returnData.id = id!;
     }
-    returnData.url = await u.oss.getFileUrl(data);
+    returnData.url = await u.oss.getFileUrl(data, req);
 
     res.status(200).send(success(returnData));
   }

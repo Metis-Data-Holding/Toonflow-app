@@ -61,7 +61,7 @@ export default router.post(
       data.map(async (script) => {
         await Promise.all(
           script.element.map(async (el) => {
-            el.filePath = el.filePath ? await u.oss.getFileUrl(el.filePath) : "";
+            el.filePath = el.filePath ? await u.oss.getFileUrl(el.filePath, req) : "";
           })
         );
       })

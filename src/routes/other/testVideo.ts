@@ -40,7 +40,7 @@ export default router.post(
           manufacturer,
         },
       );
-      const url = await u.oss.getFileUrl(videoPath);
+      const url = await u.oss.getFileUrl(videoPath, req);
       res.status(200).send(success(url));
     } catch (err: any) {
       const msg = u.error(err).message;

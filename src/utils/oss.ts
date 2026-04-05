@@ -1,6 +1,7 @@
 import isPathInside from "is-path-inside";
 import fs from "node:fs/promises";
 import path from "node:path";
+import type { Request } from "express";
 import u from "@/utils";
 
 // 规范化路径：去除前导斜杠，并将路径分隔符统一转换为系统分隔符
@@ -20,6 +21,31 @@ function resolveSafeLocalPath(userPath: string, rootDir: string): string {
     throw new Error(`${userPath} 不在 OSS 根目录内`);
   }
   return absPath;
+}
+
+function normalizeBaseURL(baseURL: string): string {
+  return `${baseURL.replace(/\/+$/, "")}/`;
+}
+
+function isLocalOnlyBaseURL(baseURL: string): boolean {
+  try {
+    const parsed = new URL(baseURL);
+    return ["127.0.0.1", "localhost", "0.0.0.0", "::1"].includes(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function buildBaseURLFromRequest(req?: Request): string | null {
+  if (!req) return null;
+
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const forwardedHost = req.headers["x-forwarded-host"];
+  const protocol = typeof forwardedProto === "string" ? forwardedProto.split(",")[0]?.trim() : req.protocol;
+  const host = typeof forwardedHost === "string" ? forwardedHost.split(",")[0]?.trim() : req.get("host");
+
+  if (!protocol || !host) return null;
+  return normalizeBaseURL(`${protocol}://${host}`);
 }
 
 class OSS {
@@ -51,11 +77,16 @@ class OSS {
    * @param userRelPath 用户传入的相对文件路径（使用 / 作为分隔符）
    * @returns 文件的 http 链接（本地服务地址）
    */
-  async getFileUrl(userRelPath: string): Promise<string> {
+  async getFileUrl(userRelPath: string, req?: Request): Promise<string> {
     await this.ensureInit();
     const safePath = normalizeUserPath(userRelPath);
-    // URL 始终使用 /，所以这里需要将系统分隔符转回 /
-    const url = process.env.OSSURL || `http://127.0.0.1:60000/`;
+    const requestBaseURL = buildBaseURLFromRequest(req);
+    const configuredBaseURL = process.env.OSSURL ? normalizeBaseURL(process.env.OSSURL) : "";
+    // 若 OSSURL 仍是默认的 localhost/127.0.0.1，而当前请求来自外部地址，则优先使用请求地址
+    const url =
+      requestBaseURL && (!configuredBaseURL || isLocalOnlyBaseURL(configuredBaseURL))
+        ? requestBaseURL
+        : configuredBaseURL || requestBaseURL || `http://127.0.0.1:60000/`;
     return `${url}${safePath.split(path.sep).join("/")}`;
   }
 

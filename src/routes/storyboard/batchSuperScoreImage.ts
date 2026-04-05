@@ -93,7 +93,7 @@ export default router.post(
       results.flatMap((item: any) =>
         (item.value as any[]).map(async (cell) => ({
           ...cell,
-          filePath: await u.oss.getFileUrl(cell.filePath ?? ""),
+          filePath: await u.oss.getFileUrl(cell.filePath ?? "", req),
         })),
       ),
     );

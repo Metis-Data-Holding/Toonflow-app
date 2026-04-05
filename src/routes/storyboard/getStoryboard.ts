@@ -30,7 +30,7 @@ export default router.post(
       if (!item.filePath) {
         item.filePath = "";
       }
-      item.filePath = await u.oss.getFileUrl(item.filePath ?? "");
+      item.filePath = await u.oss.getFileUrl(item.filePath ?? "", req);
     }
 
     const data = await Promise.all(
@@ -41,7 +41,7 @@ export default router.post(
             .map(async (img: any) => {
               return {
                 ...img,
-                filePath: await u.oss.getFileUrl(img.filePath ?? ""),
+                filePath: await u.oss.getFileUrl(img.filePath ?? "", req),
               };
             })
         );

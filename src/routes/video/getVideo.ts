@@ -65,9 +65,9 @@ export default router.post(
             storyboardImgs = [];
           }
         }
-        const signedStoryboardImgs = await Promise.all(storyboardImgs.map((img) => (img ? u.oss.getFileUrl(img) : "")));
-        const signedFilePath = video.filePath ? await u.oss.getFileUrl(video.filePath) : "";
-        const signedFirstFrame = video.firstFrame ? await u.oss.getFileUrl(video.firstFrame) : "";
+        const signedStoryboardImgs = await Promise.all(storyboardImgs.map((img) => (img ? u.oss.getFileUrl(img, req) : "")));
+        const signedFilePath = video.filePath ? await u.oss.getFileUrl(video.filePath, req) : "";
+        const signedFirstFrame = video.firstFrame ? await u.oss.getFileUrl(video.firstFrame, req) : "";
         const videoId = typeof video.id === "string" ? parseInt(video.id) : video.id;
         return {
           ...video,

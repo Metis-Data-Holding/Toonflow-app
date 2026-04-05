@@ -180,7 +180,7 @@ export default router.post(
           filePath: imagePath,
           type: insertType,
         });
-        const path = await u.oss.getFileUrl(imagePath!);
+        const path = await u.oss.getFileUrl(imagePath!, req);
 
         // const state = await u.db("t_assets").where("id", id).select("state").first();
 

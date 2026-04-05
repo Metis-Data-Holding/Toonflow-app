@@ -71,7 +71,7 @@ export default router.post(
         map.get(row.scriptId)!.storyboard.push({
           id: row.storyboardId,
           storyboardName: row.storyboardName ?? "",
-          filePath: await u.oss.getFileUrl(row.filePath ?? ""),
+          filePath: await u.oss.getFileUrl(row.filePath ?? "", req),
           prompt: row.prompt ?? "",
           videoPrompt: row.videoPrompt ?? "",
           duration: row.duration ?? 0,

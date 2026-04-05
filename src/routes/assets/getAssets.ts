@@ -19,7 +19,7 @@ export default router.post(
 
     for (const item of data) {
       if (item.filePath) {
-        item.filePath = await u.oss.getFileUrl(item.filePath);
+        item.filePath = await u.oss.getFileUrl(item.filePath, req);
       } else {
         item.filePath = "";
       }
