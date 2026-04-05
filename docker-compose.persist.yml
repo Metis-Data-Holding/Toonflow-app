@@ -14,7 +14,6 @@ services:
     environment:
       NODE_ENV: prod
       PORT: 60000
-      OSSURL: http://101.47.20.72:60000/
     volumes:
       - /opt/metis/toonflow/logs:/var/log
       - /opt/metis/toonflow/uploads:/app/uploads

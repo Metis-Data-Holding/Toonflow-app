@@ -81,6 +81,18 @@ server {
         try_files $uri =404;
     }
 
+    # ---------- 上传资源走后端静态服务 ----------
+    location ~ ^/[0-9]+/(role|scene|props|storyboard|video|chat|assets)/ {
+        proxy_pass http://127.0.0.1:60000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 300;
+        proxy_send_timeout 300;
+    }
+
     # ---------- 静态资源长期缓存 ----------
     location ~* \.(js|mjs|css|png|jpg|jpeg|gif|ico|svg|webp|woff|woff2|ttf|eot)$ {
         access_log off;
@@ -95,6 +107,7 @@ server {
 		proxy_set_header Host $host;
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
 		proxy_read_timeout 300;
         proxy_send_timeout 300;
 	}
@@ -107,6 +120,7 @@ server {
 		proxy_set_header Host $host;
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
 		proxy_read_timeout 3600;
         proxy_send_timeout 3600;
 	}
@@ -119,6 +133,7 @@ server {
 		proxy_set_header Host $host;
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
 		proxy_read_timeout 3600;
         proxy_send_timeout 3600;
 	}
@@ -131,6 +146,7 @@ server {
 		proxy_set_header Host $host;
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
 		proxy_read_timeout 3600;
         proxy_send_timeout 3600;
 	}
