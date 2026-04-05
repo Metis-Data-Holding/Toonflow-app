@@ -1,6 +1,11 @@
 import "../type";
 import axios from "axios";
-import { normalizeOpenRouterApiKey, normalizeOpenRouterBaseURL } from "@/lib/openrouter";
+import {
+  getOpenRouterModelById,
+  getOpenRouterModelOutputModalities,
+  normalizeOpenRouterApiKey,
+  normalizeOpenRouterBaseURL,
+} from "@/lib/openrouter";
 
 type OpenRouterImageMessage = {
   images?: Array<{
@@ -108,16 +113,28 @@ async function sendOpenRouterImageRequest(input: ImageConfig, config: AIConfig, 
   throw new Error("OpenRouter 未返回图片结果，请检查模型是否支持图像输出");
 }
 
-export default async (input: ImageConfig, config: AIConfig): Promise<string> => {
-  try {
-    return await sendOpenRouterImageRequest(input, config, ["image", "text"]);
-  } catch (err: any) {
-    const status = err?.response?.status;
-    const message = err?.response?.data?.error?.message || err?.message || "";
-    const shouldFallback = status === 400 && /modalities|image output|text output|unsupported/i.test(message);
+async function resolveModalities(config: AIConfig): Promise<string[]> {
+  if (!config.model || !config.apiKey) return ["image"];
 
-    if (!shouldFallback) throw err;
+  try {
+    const model = await getOpenRouterModelById({
+      apiKey: config.apiKey,
+      baseURL: config.baseURL,
+      modelId: config.model,
+    });
+    const outputModalities = getOpenRouterModelOutputModalities(model);
+
+    if (outputModalities.includes("image") && outputModalities.includes("text")) {
+      return ["image", "text"];
+    }
+  } catch {
+    // 模型元信息获取失败时，回退到最保守的 image-only 请求
   }
 
-  return await sendOpenRouterImageRequest(input, config, ["image"]);
+  return ["image"];
+}
+
+export default async (input: ImageConfig, config: AIConfig): Promise<string> => {
+  const modalities = await resolveModalities(config);
+  return await sendOpenRouterImageRequest(input, config, modalities);
 };

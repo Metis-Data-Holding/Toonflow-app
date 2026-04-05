@@ -4,6 +4,9 @@ export type OpenRouterModelRecord = {
   id?: string;
   name?: string;
   output_modalities?: string[];
+  architecture?: {
+    output_modalities?: string[];
+  };
 };
 
 export type OpenRouterModelOption = {
@@ -38,12 +41,31 @@ export async function fetchOpenRouterModels(params: {
       Authorization: `Bearer ${token}`,
     },
     params: {
-      output_modalities: outputModalities.join(","),
+      output_modality: outputModalities.join(","),
     },
     timeout: 15000,
   });
 
   return Array.isArray(data?.data) ? (data.data as OpenRouterModelRecord[]) : [];
+}
+
+export function getOpenRouterModelOutputModalities(model?: OpenRouterModelRecord): string[] {
+  const raw = model?.output_modalities ?? model?.architecture?.output_modalities ?? [];
+  return Array.isArray(raw) ? raw.filter((item): item is string => typeof item === "string") : [];
+}
+
+export async function getOpenRouterModelById(params: {
+  apiKey: string;
+  baseURL?: string;
+  modelId: string;
+}): Promise<OpenRouterModelRecord | undefined> {
+  const models = await fetchOpenRouterModels({
+    apiKey: params.apiKey,
+    baseURL: params.baseURL,
+    outputModalities: ["image", "text"],
+  });
+
+  return models.find((item) => item.id === params.modelId);
 }
 
 export function toOpenRouterModelOptions(models: OpenRouterModelRecord[]): OpenRouterModelOption[] {
