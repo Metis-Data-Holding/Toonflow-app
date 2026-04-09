@@ -9,8 +9,7 @@ services:
     container_name: toonflow
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "60000:60000"
+      - "127.0.0.1:18080:80"
     environment:
       NODE_ENV: prod
       PORT: 60000
