@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <radialGradient id="metis-core" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(128 128) rotate(90) scale(58)">
+      <stop offset="0" stop-color="#FF8A22" />
+      <stop offset="0.58" stop-color="#FF7A1A" stop-opacity="0.92" />
+      <stop offset="1" stop-color="#FF7A1A" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="metis-node" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(128 128) rotate(90) scale(22)">
+      <stop offset="0" stop-color="#FF8E27" />
+      <stop offset="1" stop-color="#F25D22" />
+    </radialGradient>
+    <linearGradient id="metis-line" x1="42" y1="32" x2="214" y2="224" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#274785" />
+      <stop offset="1" stop-color="#3E79A7" />
+    </linearGradient>
+    <filter id="metis-glow" x="62" y="62" width="132" height="132" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="18" />
+    </filter>
+  </defs>
+
+  <g opacity="0.88" stroke="url(#metis-line)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M128 22L83 42L53 77L40 128L53 179L83 214L128 234L173 214L203 179L216 128L203 77L173 42L128 22Z" stroke-width="2.6" />
+    <path d="M128 42L90 60L64 90L54 128L64 166L90 196L128 214L166 196L192 166L202 128L192 90L166 60L128 42Z" stroke-width="2.2" opacity="0.82" />
+    <path d="M83 42L90 60M53 77L64 90M40 128L54 128M53 179L64 166M83 214L90 196M128 22L128 42M173 42L166 60M203 77L192 90M216 128L202 128M203 179L192 166M173 214L166 196M128 234L128 214" stroke-width="2" opacity="0.82" />
+    <path d="M83 42L128 42L173 42M53 77L90 60L128 42L166 60L203 77M40 128L64 90L90 60L128 42L166 60L192 90L216 128M53 179L64 166L90 196L128 214L166 196L192 166L203 179M83 214L128 214L173 214" stroke-width="1.9" opacity="0.78" />
+    <path d="M83 42L128 77L173 42M53 77L90 98L128 77L166 98L203 77M40 128L83 118L128 98L173 118L216 128M53 179L90 158L128 178L166 158L203 179M83 214L128 178L173 214" stroke-width="1.9" opacity="0.74" />
+    <path d="M83 214L83 42M173 214L173 42M128 234L128 22M53 179L53 77M203 179L203 77" stroke-width="1.7" opacity="0.68" />
+    <path d="M90 60L128 128L166 60M64 90L128 128L192 90M54 128H202M64 166L128 128L192 166M90 196L128 128L166 196" stroke-width="1.7" opacity="0.56" />
+    <path d="M24 128H40M18 112L53 112M18 144L53 144M34 98L64 124" stroke="#EE9A3B" stroke-width="2.8" opacity="0.9" />
+    <path d="M26 95L48 118M28 161L58 161" stroke="#EE9A3B" stroke-width="2.4" opacity="0.78" />
+  </g>
+
+  <circle cx="128" cy="128" r="42" fill="#FF8A22" opacity="0.4" filter="url(#metis-glow)" />
+  <circle cx="128" cy="128" r="34" fill="url(#metis-core)" />
+  <circle cx="128" cy="128" r="13" fill="url(#metis-node)" />
+
+  <g fill="url(#metis-line)">
+    <circle cx="128" cy="22" r="4.6" />
+    <circle cx="83" cy="42" r="4.6" />
+    <circle cx="53" cy="77" r="4.6" />
+    <circle cx="40" cy="128" r="4.6" />
+    <circle cx="53" cy="179" r="4.6" />
+    <circle cx="83" cy="214" r="4.6" />
+    <circle cx="128" cy="234" r="4.6" />
+    <circle cx="173" cy="214" r="4.6" />
+    <circle cx="203" cy="179" r="4.6" />
+    <circle cx="216" cy="128" r="4.6" />
+    <circle cx="203" cy="77" r="4.6" />
+    <circle cx="173" cy="42" r="4.6" />
+    <circle cx="90" cy="60" r="4.2" opacity="0.92" />
+    <circle cx="64" cy="90" r="4.2" opacity="0.92" />
+    <circle cx="54" cy="128" r="4.2" opacity="0.92" />
+    <circle cx="64" cy="166" r="4.2" opacity="0.92" />
+    <circle cx="90" cy="196" r="4.2" opacity="0.92" />
+    <circle cx="128" cy="214" r="4.2" opacity="0.92" />
+    <circle cx="166" cy="196" r="4.2" opacity="0.92" />
+    <circle cx="192" cy="166" r="4.2" opacity="0.92" />
+    <circle cx="202" cy="128" r="4.2" opacity="0.92" />
+    <circle cx="192" cy="90" r="4.2" opacity="0.92" />
+    <circle cx="166" cy="60" r="4.2" opacity="0.92" />
+    <circle cx="128" cy="42" r="4.2" opacity="0.92" />
+    <circle cx="128" cy="77" r="4.1" opacity="0.78" />
+    <circle cx="90" cy="98" r="4.1" opacity="0.78" />
+    <circle cx="166" cy="98" r="4.1" opacity="0.78" />
+    <circle cx="83" cy="118" r="4.1" opacity="0.78" />
+    <circle cx="173" cy="118" r="4.1" opacity="0.78" />
+    <circle cx="90" cy="158" r="4.1" opacity="0.78" />
+    <circle cx="166" cy="158" r="4.1" opacity="0.78" />
+    <circle cx="128" cy="178" r="4.1" opacity="0.78" />
+  </g>
+
+  <g fill="#EE9A3B">
+    <circle cx="24" cy="128" r="3.3" />
+    <circle cx="18" cy="112" r="2.8" />
+    <circle cx="18" cy="144" r="2.8" />
+    <circle cx="26" cy="95" r="2.6" />
+    <circle cx="28" cy="161" r="2.6" />
+    <circle cx="34" cy="98" r="2.6" />
+  </g>
+</svg>
